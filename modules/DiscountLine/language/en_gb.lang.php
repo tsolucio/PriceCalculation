@@ -9,14 +9,30 @@
  ************************************************************************************/
 
 $mod_strings = array(
-	'ModuleName' => 'Module Name',
-	'SINGLE_ModuleName' => 'Module Name',
-	'ModuleName ID' => 'Module Name ID',
+	'DiscountLine' => 'Price Modification',
+	'SINGLE_DiscountLine' => 'Price Modification',
+	'DiscountLine ID' => 'Price Modification ID',
 
 	'LBL_CUSTOM_INFORMATION' => 'Custom Information',
-	'LBL_MODULEBLOCK_INFORMATION' => 'ModuleBlock Information',
+	'LBL_DISCOUNTLINE_INFORMATION' => 'Price Modification Information',
 	'LBL_DESCRIPTION_INFORMATION' => 'Description',
 
-	'ModuleFieldLabel' => 'ModuleFieldLabel Text',
+	'discountline_no' => 'Price Modification No',
+	'Line' => 'Line',
+	'Discount' => 'Discount',
+	'Description' => 'Descripción',
+	'Map' => 'Map',
+	'Return Value' => 'Return Value',
+	'Active' => 'Active',
+	'Default' => 'Default',
+	'LBL_PERMISSION' => "Can't create a duplicate discount line for this account",
+
+	'STATUS_CONFIGURATION_DESCRIPTION' => 'Activate/Deactivate Module',
+	'STATUS_CONFIGURATION' => 'Module Status',
+	'LBL_CHANGE_MODULE_STATUS' => 'Change Module Status',
+	'LBL_ACTIVATE_MODULE' => 'Module Activated',
+	'LBL_DEACTIVATE_MODULE' => 'Module Deactivated',
+	'LBL_SAVE_BUTTON_LABEL' => 'Save',
+	'MODULE_CONFIGURATION' => 'Module Configuration'
 );
 ?>

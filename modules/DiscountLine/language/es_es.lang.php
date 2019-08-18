@@ -9,18 +9,30 @@
  ************************************************************************************/
 
 $mod_strings = array(
-	'DiscountLine' => 'Línea de Descuento',
-	'DiscountLine ID' => 'ID Línea de Descuento',
+	'DiscountLine' => 'Modificación Precio',
+	'SINGLE_DiscountLine' => 'Modificación Precio',
+	'DiscountLine ID' => 'ID Modificación Precio',
 
 	'LBL_CUSTOM_INFORMATION' => 'Información Personalizada',
-	'LBL_DISCOUNTLINE_INFORMATION' => 'Información Línea de Descuento',
-	'SINGLE_DiscountLine' => 'Línea de Descuento',
+	'LBL_DISCOUNTLINE_INFORMATION' => 'Información Modificación Precio',
 	'LBL_DESCRIPTION_INFORMATION' => 'Descripción',
 
-	'discountline_no' => 'No Dto Línea',
+	'discountline_no' => 'Nº Precio',
 	'Line' => 'Línea',
 	'Discount' => 'Descuento',
 	'Description' => 'Descripción',
+	'Map' => 'Mapa',
+	'Return Value' => 'Valor Devuelto',
+	'Active' => 'Activo',
+	'Default' => 'Defecto',
 	'LBL_PERMISSION' => "Esta Cuenta ya tiene asociada esta línea. Por favor, seleccione otro tipo de línea.",
+
+	'STATUS_CONFIGURATION_DESCRIPTION' => 'Activar/Desactivar Módulo',
+	'STATUS_CONFIGURATION' => 'Estado Módulo',
+	'LBL_CHANGE_MODULE_STATUS' => 'Cambia el estado del módulo',
+	'LBL_ACTIVATE_MODULE' => 'Módulo Activado',
+	'LBL_DEACTIVATE_MODULE' => 'Módulo Desactivado',
+	'LBL_SAVE_BUTTON_LABEL' => 'Guardar',
+	'MODULE_CONFIGURATION' => 'Configuración Módulo'
 );
 ?>
