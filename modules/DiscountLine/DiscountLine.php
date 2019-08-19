@@ -265,7 +265,7 @@ class DiscountLine extends CRMEntity {
 		global $adb, $current_user;
 		self::$validationinfo = array();
 		$context = array(
-			'recordid' => $productid,
+			'record_id' => $productid,
 			'accountid' => $accountid,
 			'contactid' => $contactid,
 			'moduleid' => $moduleid,
@@ -391,7 +391,7 @@ class DiscountLine extends CRMEntity {
 		global $adb, $current_user;
 		$rs = $adb->pquery('SELECT distinct cbmapid,returnvalue,discount FROM vtiger_discountline WHERE discountlineid=?', array($dtolineid));
 		if ($rs && $adb->num_rows($rs) > 0) {
-			$productid = $context['recordid'];
+			$productid = $context['record_id'];
 			$pdotype = getSalesEntityType($productid);
 			$qg = new QueryGenerator($pdotype, $current_user);
 			$qg->setFields(array('unit_price','cost_price'));
@@ -403,6 +403,21 @@ class DiscountLine extends CRMEntity {
 			if (empty($mapid)) {
 				$value = $adb->query_result($rs, 0, 'discount');
 			} else {
+				if (!empty($context['contactid'])) {
+					$f = CRMEntity::getInstance('Accounts');
+					$f->retrieve_entity_info($context['contactid'], 'Contacts');
+					$context = array_merge($f->column_fields, $context);
+				}
+				if (!empty($context['accountid'])) {
+					$f = CRMEntity::getInstance('Accounts');
+					$f->retrieve_entity_info($context['accountid'], 'Accounts');
+					$context = array_merge($f->column_fields, $context);
+				}
+				if (!empty($productid)) {
+					$f = CRMEntity::getInstance($pdotype);
+					$f->retrieve_entity_info($productid, $pdotype);
+					$context = array_merge($f->column_fields, $context);
+				}
 				$value = coreBOS_Rule::evaluate($mapid, $context);
 			}
 			if ($rettype == 'Cost+Margin') {
