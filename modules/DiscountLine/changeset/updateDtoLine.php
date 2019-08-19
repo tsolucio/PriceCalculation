@@ -31,14 +31,18 @@ class updateDtoLine extends cbupdaterWorker {
 				$ev->registerHandler('corebos.entity.link.after', 'modules/DiscountLine/CheckDuplicateRelatedRecords.php', 'CheckDuplicateRelatedRecords');
 				$ev->registerHandler('corebos.filter.inventory.getprice', 'modules/DiscountLine/GetPriceHandler.php', 'PriceCalculationGetPriceEventHandler');
 				$modAccounts = Vtiger_Module::getInstance('Accounts');
-				$modAccounts->unsetRelatedList(Vtiger_Module::getInstance('Discountline'), 'Price Modification', 'get_dependents_list');
-				$modAccounts->setRelatedList(Vtiger_Module::getInstance('Discountline'), 'Price Modification', array('ADD','SELECT'));
-				$modServices = Vtiger_Module::getInstance('Services');
-				$modServices->setRelatedList(Vtiger_Module::getInstance('Discountline'), 'Price Modification', array('ADD','SELECT'));
-				$modProducts = Vtiger_Module::getInstance('Products');
-				$modProducts->setRelatedList(Vtiger_Module::getInstance('Discountline'), 'Price Modification', array('ADD','SELECT'));
+				$modAccounts->unsetRelatedList($module, 'Price Modification', 'get_dependents_list');
+				$modAccounts->setRelatedList($module, 'Price Modification', array('ADD','SELECT'));
+				$module->setRelatedList($modAccounts, 'Price Modification', array('ADD','SELECT'));
 				$modContacts = Vtiger_Module::getInstance('Contacts');
-				$modContacts->setRelatedList(Vtiger_Module::getInstance('Discountline'), 'Price Modification', array('ADD','SELECT'));
+				$modContacts->setRelatedList($module, 'Price Modification', array('ADD','SELECT'));
+				$module->setRelatedList($modContacts, 'Price Modification', array('ADD','SELECT'));
+				$modProducts = Vtiger_Module::getInstance('Products');
+				$modProducts->setRelatedList($module, 'Price Modification', array('ADD','SELECT'));
+				$module->setRelatedList($modProducts, 'Price Modification', array('ADD','SELECT'));
+				$modServices = Vtiger_Module::getInstance('Services');
+				$modServices->setRelatedList($module, 'Price Modification', array('ADD','SELECT'));
+				$module->setRelatedList($modServices, 'Price Modification', array('ADD','SELECT'));
 				// Gets all the uitype10 accountid and adds them to crmentityrel
 				$query_result = $adb->pquery('SELECT discountlineid, accountid FROM vtiger_discountline', array());
 				while ($_rows = $adb->fetch_array($query_result)) {
@@ -79,6 +83,14 @@ class updateDtoLine extends cbupdaterWorker {
 					),
 				);
 				$this->massCreateFields($fieldLayout);
+				$fieldLayout=array(
+					'Discountline' => array(
+						'accountid'
+					),
+				);
+				$this->massHideFields($fieldLayout);
+				$this->ExecuteQuery('update vtiger_discountline set activestatus=?, returnvalue=?', array('1', 'Unit+Discount'));
+				coreBOS_Settings::setSetting('KEY_DISCOUNT_MODULE_STATUS', 'on');
 			}
 			$this->sendMsg('Changeset '.get_class($this).' applied!');
 			$this->markApplied();
