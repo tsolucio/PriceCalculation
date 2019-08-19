@@ -157,7 +157,7 @@ class DiscountLine extends CRMEntity {
 	 * You can override the behavior by re-defining it here.
 	 */
 	public function save_related_module($module, $crmid, $with_module, $with_crmids) {
-		global $adb, $log;
+		global $adb;
 		if ($with_module == 'Products' || $with_module == 'Services' || $with_module == 'Accounts' || $with_module == 'Contacts') {
 			/* algorithm:
 				Calculate the set of DiscountLine Records that are related to $with_crmid, call it DLW
@@ -400,7 +400,7 @@ class DiscountLine extends CRMEntity {
 			} else { // Unit+Discount
 				$return = array('unit price' => $adb->query_result($rsprice, 0, 'unit_price') , 'discount' => $value);
 			}
-			self::$validationinfo[] = sprintf('Record %s: (%s) Price: %s, Discount: %s, Value: %s', $dtolineid, $rettype, $return['unit price'], $return['discount'], $value);
+			self::$validationinfo[]=sprintf('Record %s (%s), Price %s, Discount %s, Value: %s', $dtolineid, $rettype, $return['unit price'], $return['discount'], $value);
 			return $return;
 		} else {
 			self::$validationinfo[] = 'Discount Record NOT FOUND';

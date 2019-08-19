@@ -32,7 +32,7 @@ if (!is_admin($current_user)) {
 	$mode = isset($_POST['mode']) ? vtlib_purify($_POST['mode']) : '';
 	# Save Action
 	if (!empty($mode) && $mode == 'Save') {
-		if ($_POST['module_status'] == null) {
+		if (empty($_POST['module_status'])) {
 			$module_status ='off';
 		} else {
 			$module_status = vtlib_purify($_POST['module_status']);
@@ -66,6 +66,6 @@ if (!is_admin($current_user)) {
 			<button type="submit" value="Save" class="slds-button slds-button--brand"><?php echo getTranslatedString('LBL_SAVE_BUTTON_LABEL', $currentModule);?></button>
 		</div>
 	</form>
-<?php
+	<?php
 }
 ?>
