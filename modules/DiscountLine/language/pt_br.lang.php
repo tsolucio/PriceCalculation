@@ -25,7 +25,7 @@ $mod_strings = array(
 	'Return Value' => 'Valor Devuelto',
 	'Active' => 'Activo',
 	'Default' => 'Defecto',
-	'LBL_PERMISSION' => "Não é possível criar um duplicado da linha de descontos para esta conta",
+	'RELATE_PERMISSION' => 'This relation is not permitted as it would produce duplicates',
 
 	'STATUS_CONFIGURATION_DESCRIPTION' => 'Activar/Desactivar Módulo',
 	'STATUS_CONFIGURATION' => 'Estado Módulo',

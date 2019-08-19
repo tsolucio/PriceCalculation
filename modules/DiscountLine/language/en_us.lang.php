@@ -25,7 +25,7 @@ $mod_strings = array(
 	'Return Value' => 'Return Value',
 	'Active' => 'Active',
 	'Default' => 'Default',
-	'LBL_PERMISSION' => "Can't create a duplicate discount line for this account",
+	'RELATE_PERMISSION' => 'This relation is not permitted as it would produce duplicates',
 
 	'STATUS_CONFIGURATION_DESCRIPTION' => 'Activate/Deactivate Module',
 	'STATUS_CONFIGURATION' => 'Module Status',

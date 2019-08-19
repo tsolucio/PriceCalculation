@@ -25,7 +25,7 @@ $mod_strings = array(
 	'Return Value' => 'Valor Devuelto',
 	'Active' => 'Activo',
 	'Default' => 'Defecto',
-	'LBL_PERMISSION' => "Esta Cuenta ya tiene asociada esta línea. Por favor, seleccione otro tipo de línea.",
+	'RELATE_PERMISSION' => 'Esta relación no está permitida ya que produciría duplicados',
 
 	'STATUS_CONFIGURATION_DESCRIPTION' => 'Activar/Desactivar Módulo',
 	'STATUS_CONFIGURATION' => 'Estado Módulo',

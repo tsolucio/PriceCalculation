@@ -21,7 +21,7 @@ class DiscountLine extends CRMEntity {
 	/** Indicator if this is a custom module or standard module */
 	public $IsCustomModule = true;
 	public $HasDirectImageField = false;
-	public $moduleIcon = array('library' => 'standard', 'containerClass' => 'slds-icon_container slds-icon-standard-account', 'class' => 'slds-icon', 'icon'=>'sales_cadence_target');
+	public $moduleIcon = array('library' => 'standard', 'containerClass' => 'slds-icon_container slds-icon-standard-account', 'class' => 'slds-icon', 'icon'=>'sales_path');
 
 	/**
 	 * Mandatory table for supporting custom fields.
@@ -99,41 +99,12 @@ class DiscountLine extends CRMEntity {
 	// Refers to vtiger_field.fieldname values.
 	public $mandatory_fields = array('dlcategory','discount');
 
+	private static $validationinfo = array();
+
 	public function save_module($module) {
 		if ($this->HasDirectImageField) {
 			$this->insertIntoAttachment($this->id, $module);
 		}
-	}
-
-	/* Validate values trying to be saved.
-	 * @param array $_REQUEST input values. Note: column_fields array is already loaded
-	 * @return array
-	 *   saveerror: true if error false if not
-	 *   errormessage: message to return to user if error, empty otherwise
-	 *   error_action: action to redirect to inside the same module in case of error. if redirected to EditView (default action)
-	 *                 all values introduced by the user will be preloaded
-	 */
-	public function preSaveCheck($request) {
-		// global $adb;
-		// $saveerror = false;
-		// $errmsg = '';
-		// $sql='SELECT 1 FROM vtiger_discountline
-		// 	INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_discountline.discountlineid
-		// 	WHERE vtiger_crmentity.deleted=0 AND accountid=? AND dlcategory=? limit 1';
-		// $result = $adb->pquery($sql, array($request['accountid'], $request['productcategory']));
-		// if ($adb->num_rows($result)==1) {
-		// 	$saveerror = true;
-		// 	$errmsg = getTranslatedString('LBL_PERMISSION', 'DiscountLine');
-		// }
-		// return array($saveerror,$errmsg, 'EditView', '');
-		global $log, $app_strings;
-		if ($this->mode == 'edit' && !$this->permissiontoedit()) {
-			$log->debug("You don't have permission to save Price Modification");
-			return array(true, $app_strings['LBL_PERMISSION'], 'index', array());
-		}
-		list($request,$void,$saveerror,$errormessage,$error_action,$returnvalues) =
-			cbEventHandler::do_filter('corebos.filter.preSaveCheck', array($request, $this, false, '', '', ''));
-		return array($saveerror, $errormessage, $error_action, $returnvalues);
 	}
 
 	/**
@@ -186,51 +157,79 @@ class DiscountLine extends CRMEntity {
 	 * You can override the behavior by re-defining it here.
 	 */
 	public function save_related_module($module, $crmid, $with_module, $with_crmids) {
-		global $adb;
+		global $adb, $log;
 		if ($with_module == 'Products' || $with_module == 'Services' || $with_module == 'Accounts' || $with_module == 'Contacts') {
+			/* algorithm:
+				Calculate the set of DiscountLine Records that are related to $with_crmid, call it DLW
+				if DLW is empty => we can relate this one as there is no other DL related
+				else:
+					calculate the set of Products/Accounts on this DiscountLine, call it DLP
+					calculate the set of Products/Accounts related to all the records in DLW, call it DLWP
+					if the intersection of the DLP and DLWP is empty we can relate, else we cannot
+			*/
+			if ($with_module == 'Products' || $with_module == 'Services') {
+				$otherModules = array('Accounts', 'Contacts');
+			} else {
+				$otherModules = array('Products', 'Services');
+			}
 			$with_crmids = (array)$with_crmids;
 			foreach ($with_crmids as $with_crmid) {
-				$checkResult = $adb->pquery(
-					'SELECT * FROM vtiger_crmentityrel INNER JOIN ( SELECT vtiger_crmentityrel.relcrmid FROM vtiger_crmentityrel WHERE crmid = ? OR crmid = ? ) temp ON vtiger_crmentityrel.relcrmid = temp.relcrmid AND( relmodule = ? OR relmodule = ? ) WHERE ( vtiger_crmentityrel.relmodule = ? OR vtiger_crmentityrel.relmodule = ? ) AND crmid IN( SELECT crmid FROM vtiger_crmentityrel WHERE (crmid = ? OR crmid = ?) AND( module = ? OR module = ? ) AND( relcrmid = ? OR relcrmid = ? ) AND( relmodule = ? OR relmodule = ? ) )',
-					array(
-						$crmid, $with_crmid, $with_module, $module, $with_module, $module, $crmid, $with_crmid,
-						$module, $with_module, $with_crmid, $crmid,
-						$with_module, $module
-					)
+				$checkpresence = $adb->pquery(
+					'SELECT 1 FROM vtiger_crmentityrel WHERE (crmid=? AND relcrmid=?) OR (crmid=? AND relcrmid=?)',
+					array($crmid, $with_crmid, $with_crmid, $crmid)
 				);
-				if ($adb->num_rows($checkResult) > 1) {
-					$sql = "DELETE FROM vtiger_crmentityrel WHERE crmid = ? AND module = ? AND relcrmid = ? AND relmodule = ? LIMIT 1";
-					$adb->pquery($sql, array($crmid, $module, $with_crmid, $with_module));
-				} elseif ($adb->num_rows($checkResult) == 0) {
-					$sql = 'INSERT INTO vtiger_crmentityrel VALUES(?,?,?,?)';
-					$adb->pquery($sql, array($crmid, $module, $with_crmid, $with_module));
+				// Relation already exists? No need to add again
+				if ($checkpresence && $adb->num_rows($checkpresence)) {
+					continue;
 				}
+				$dlwrs = $adb->pquery(
+					'SELECT * FROM vtiger_crmentityrel WHERE (crmid=? AND relmodule=?) OR (relcrmid=? AND module=?)',
+					array($with_crmid, 'DiscountLine', $with_crmid, 'DiscountLine')
+				);
+				$dlw = array();
+				while ($rels = $adb->fetch_array($dlwrs)) {
+					$dlw[] = ($rels['module']=='DiscountLine' ? $rels['crmid'] : $rels['relcrmid']);
+				}
+				// if DLW is empty => we can relate
+				if (count($dlw)==0) {
+					$adb->pquery('INSERT INTO vtiger_crmentityrel VALUES(?,?,?,?)', array($crmid, $module, $with_crmid, $with_module));
+					continue;
+				}
+				$dlwprs = $adb->pquery(
+					'SELECT * FROM vtiger_crmentityrel
+						WHERE (crmid in ('.generateQuestionMarks($dlw).') AND (relmodule=? OR relmodule=?))
+							OR (relcrmid in ('.generateQuestionMarks($dlw).') AND (module=? OR module=?))',
+					array($dlw, $otherModules, $dlw, $otherModules)
+				);
+				$dlwp = array();
+				while ($rels = $adb->fetch_array($dlwprs)) {
+					$dlwp[] = ($rels['module']=='DiscountLine' ? $rels['relcrmid'] : $rels['crmid']);
+				}
+				$dlwp = array_unique($dlwp);
+				$dlprs = $adb->pquery(
+					'SELECT * FROM vtiger_crmentityrel
+						WHERE (crmid=? AND (relmodule=? OR relmodule=?)) OR (relcrmid=? AND (module=? OR module=?))',
+					array($crmid, $otherModules, $crmid, $otherModules)
+				);
+				$dlp = array();
+				while ($rels = $adb->fetch_array($dlprs)) {
+					$dlp[] = ($rels['module']=='DiscountLine' ? $rels['relcrmid'] : $rels['crmid']);
+				}
+				$dlp = array_unique($dlp);
+				// if DLWP intersect with DLP is empty => we can relate
+				$intersect = array_intersect($dlwp, $dlp);
+				if (count($intersect)==0) {
+					$adb->pquery('INSERT INTO vtiger_crmentityrel VALUES(?,?,?,?)', array($crmid, $module, $with_crmid, $with_module));
+					continue;
+				}
+				coreBOS_Settings::setSetting('RLERRORMESSAGE', getTranslatedString('RELATE_PERMISSION', 'DiscountLine'));
+				coreBOS_Settings::setSetting('RLERRORMESSAGECLASS', 'warning');
 			}
 		} else {
 			parent::save_related_module($module, $crmid, $with_module, $with_crmid);
 		}
 	}
 
-	public function delete_related_module($module, $crmid, $with_module, $with_crmid) {
-		global $adb;
-		if ($with_module == 'ProductDetail') {
-			$with_crmid = (array)$with_crmid;
-			$data = array();
-			$data['sourceModule'] = $module;
-			$data['sourceRecordId'] = $crmid;
-			$data['destinationModule'] = $with_module;
-			foreach ($with_crmid as $relcrmid) {
-				$data['destinationRecordId'] = $relcrmid;
-				cbEventHandler::do_action('corebos.entity.link.delete', $data);
-				$adb->pquery(
-					'DELETE FROM vtiger_crmentityrel WHERE (crmid=? AND module=? AND relcrmid=? AND relmodule=?) OR (relcrmid=? AND relmodule=? AND crmid=? AND module=?)',
-					array($crmid, $module, $relcrmid, $with_module,$crmid, $module, $relcrmid, $with_module)
-				);
-			}
-		} else {
-			parent::delete_related_module($module, $crmid, $with_module, $with_crmid);
-		}
-	}
 	/**
 	 * Handle deleting related module information.
 	 * NOTE: This function has been added to CRMEntity (base class).
@@ -252,54 +251,165 @@ class DiscountLine extends CRMEntity {
 	 */
 	//public function get_dependents_list($id, $cur_tab_id, $rel_tab_id, $actions=false) { }
 
-	public static function getDiscount($accountid, $contactid, $productid, $category) {
-		global $adb;
-		$search_in = (1 == GlobalVariable::getVariable('Application_B2C', '0')) ? $contactid : $accountid;
-
-		if ($inventory_line['category'] == "None") {
-			$query_string = 'SELECT *FROM vtiger_discountline INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = discountlineid INNER JOIN vtiger_crmentityrel ON (
-				vtiger_crmentityrel.crmid=discountlineid OR vtiger_crmentityrel.relcrmid=discountlineid) WHERE deleted=0 AND (vtiger_crmentityrel.crmid=? OR 
-				vtiger_crmentityrel.relcrmid=? OR vtiger_crmentityrel.crmid=? OR vtiger_crmentityrel.relcrmid=?)';
-			$params = array($search_in, $search_in, $productid, $productid);
+	public static function getDiscount($productid, $accountid, $contactid, $moduleid) {
+		global $adb, $current_user;
+		self::$validationinfo = array();
+		$context = array(
+			'recordid' => $productid,
+			'accountid' => $accountid,
+			'contactid' => $contactid,
+			'moduleid' => $moduleid,
+		);
+		$searchModule = (1 == GlobalVariable::getVariable('Application_B2B', '1')) ? 'Accounts' : 'Contacts';
+		if ($searchModule=='Accounts') {
+			$search_in = $accountid;
 		} else {
-			$query_string = 'SELECT *FROM vtiger_discountline INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = discountlineid INNER JOIN vtiger_crmentityrel ON (
-				vtiger_crmentityrel.crmid=discountlineid OR vtiger_crmentityrel.relcrmid=discountlineid) WHERE deleted=0 AND vtiger_discountline.dlcategory =? AND (
-					vtiger_crmentityrel.crmid=? OR vtiger_crmentityrel.relcrmid=? OR vtiger_crmentityrel.crmid=? OR vtiger_crmentityrel.relcrmid=?)';
-			$params = array($category, $search_in, $search_in, $productid, $productid);
+			$search_in = $contactid;
 		}
-
-		$query_result = $adb->pquery($query_string, $params);
-		if ($adb->num_rows($query_result) > 0) {
-			if (!empty($adb->query_result($query_result, 0, "cbmapid"))) {
-				$mapid = $adb->query_result($query_result, 0, "cbmapid");
-				$context = array('recordid' => $productid);
-				$value = coreBOS_Rule::evaluate($mapid, $context);
-
-				if ($adb->query_result($query_result, 0, "returnvalue") == 'Cost+Margin') {
-					$result_cost_price = $adb->pquery("SELECT unit_price FROM `vtiger_products` WHERE productid=?", array($productid));
-					$unitprice = $adb->query_result($result_cost_price, 0, "unit_price");
-					$unitprice = $unitprice + (1 + $value);
-				} elseif ($adb->query_result($query_result, 0, "returnvalue") == 'Unit+Discount') {
-					$result_unit_price = $adb->pquery("SELECT unit_price FROM `vtiger_products` WHERE productid=?", array($productid));
-					$unitprice = $adb->query_result($result_unit_price, 0, "unit_price");
-					return array('unit price' => $unitprice , 'discount' => $value);
-				}
-			} else {
-				$value = $adb->query_result($query_result, 0, "discount");
-				if ($adb->query_result($query_result, 0, "returnvalue") == 'Cost+Margin') {
-					$result_cost_price = $adb->pquery("SELECT unit_price FROM `vtiger_products` WHERE productid=?", array($productid));
-					$unitprice = $adb->query_result($result_cost_price, 0, "unit_price");
-					$unitprice = $unitprice + (1 + $value);
-					return array('unit price' => $unitprice, 'discount' => 0);
-				} elseif ($adb->query_result($query_result, 0, "returnvalue") == 'Unit+Discount') {
-					$result_unit_price = $adb->pquery("SELECT unit_price FROM `vtiger_products` WHERE productid=?", array($productid));
-					$unitprice = $adb->query_result($result_unit_price, 0, "unit_price");
-					return array('unit price' => $unitprice , 'discount' => $value);
-				}
-			}
+		$pdotype = getSalesEntityType($productid);
+		self::$validationinfo[] = "search for discount $productid ($pdotype), $search_in ($searchModule), $moduleid";
+		$qg = new QueryGenerator($pdotype, $current_user);
+		if ($pdotype=='Products') {
+			$qg->setFields(array('productcategory'));
 		} else {
+			$qg->setFields(array('servicecategory'));
+		}
+		$qg->addCondition('id', $productid, 'e');
+		$query = $qg->getQuery();
+		$pdrs = $adb->query($query);
+		if ($pdrs && $adb->num_rows($pdrs)>0) {
+			if ($pdotype=='Products') {
+				$category = $pdrs->fields['productcategory'];
+			} else {
+				$category = $pdrs->fields['servicecategory'];
+			}
+			self::$validationinfo[] = 'Product Category: '.$category;
+			if (empty($category) || $category=='--None--') { // we set it to an inexistent value
+				$category = '-1';
+				self::$validationinfo[] = 'Product Category: '.$category;
+			}
+			$basequery = 'SELECT distinct discountlineid
+				FROM vtiger_discountline
+				INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = discountlineid ';
+			$basewhere = ' WHERE deleted=0 AND activestatus=1 AND vtiger_discountline.dlcategory=?';
+			//// category and client
+			$query = $basequery
+				.'INNER JOIN vtiger_crmentityrel ON (vtiger_crmentityrel.crmid=discountlineid OR vtiger_crmentityrel.relcrmid=discountlineid) '
+				.$basewhere.' AND (vtiger_crmentityrel.crmid=? OR vtiger_crmentityrel.relcrmid=?)';
+			$params = array($category, $search_in, $search_in);
+			$rs = $adb->pquery($query, $params);
+			if ($rs && $adb->num_rows($rs)>0) {
+				self::$validationinfo[] = 'Found category and client';
+				return self::getDiscountValue($rs->fields['discountlineid'], $context);
+			}
+			//// category and NO client NOR product
+			$query = $basequery.$basewhere
+				.'AND NOT EXISTS
+					(select 1 from vtiger_crmentityrel
+						where vtiger_crmentityrel.crmid=discountlineid OR vtiger_crmentityrel.relcrmid=discountlineid)';
+			$params = array($category);
+			$rs = $adb->pquery($query, $params);
+			if ($rs && $adb->num_rows($rs)>0) {
+				self::$validationinfo[] = 'Found category and NO client NOR product';
+				return self::getDiscountValue($rs->fields['discountlineid'], $context);
+			}
+			//// NO category, client and product
+			$query = $basequery
+				.'INNER JOIN vtiger_crmentityrel ON (vtiger_crmentityrel.crmid=discountlineid OR vtiger_crmentityrel.relcrmid=discountlineid)'
+				.$basewhere
+				.'AND EXISTS
+					(select 1 from vtiger_crmentityrel
+						where (vtiger_crmentityrel.crmid=discountlineid AND vtiger_crmentityrel.relcrmid=?)
+							OR (vtiger_crmentityrel.crmid=? AND vtiger_crmentityrel.relcrmid=discountlineid))
+				AND EXISTS
+					(select 1 from vtiger_crmentityrel
+						where (vtiger_crmentityrel.crmid=discountlineid AND vtiger_crmentityrel.relcrmid=?)
+							OR (vtiger_crmentityrel.crmid=? AND vtiger_crmentityrel.relcrmid=discountlineid))';
+			$params = array('--None--', $search_in, $search_in, $productid, $productid);
+			$rs = $adb->pquery($query, $params);
+			if ($rs && $adb->num_rows($rs)>0) {
+				self::$validationinfo[] = 'Found NO category, client and product';
+				return self::getDiscountValue($rs->fields['discountlineid'], $context);
+			}
+			//// NO category, client and NO product
+			$query = $basequery
+				.'INNER JOIN vtiger_crmentityrel ON (vtiger_crmentityrel.crmid=discountlineid OR vtiger_crmentityrel.relcrmid=discountlineid)'
+				.$basewhere.'AND (vtiger_crmentityrel.crmid=? OR vtiger_crmentityrel.relcrmid=?)
+					AND NOT EXISTS
+						(select 1 from vtiger_crmentityrel
+							where (vtiger_crmentityrel.crmid=discountlineid OR vtiger_crmentityrel.relcrmid=discountlineid)
+								AND (vtiger_crmentityrel.crmid=? OR vtiger_crmentityrel.relcrmid=?))';
+			$params = array('--None--', $search_in, $search_in, $productid, $productid);
+			$rs = $adb->pquery($query, $params);
+			if ($rs && $adb->num_rows($rs)>0) {
+				self::$validationinfo[] = 'Found NO category, client and NO product';
+				return self::getDiscountValue($rs->fields['discountlineid'], $context);
+			}
+			//// NO category, NO client and product
+			$query = $basequery
+				.'INNER JOIN vtiger_crmentityrel ON (vtiger_crmentityrel.crmid=discountlineid OR vtiger_crmentityrel.relcrmid=discountlineid)'
+				.$basewhere.'AND (vtiger_crmentityrel.crmid=? OR vtiger_crmentityrel.relcrmid=?)
+				AND NOT EXISTS
+				(select 1 from vtiger_crmentityrel
+					where (vtiger_crmentityrel.crmid=discountlineid OR vtiger_crmentityrel.relcrmid=discountlineid)
+						AND (vtiger_crmentityrel.module=? OR vtiger_crmentityrel.relmodule=?))';
+			$params = array('--None--', $productid, $productid, $searchModule, $searchModule);
+			$rs = $adb->pquery($query, $params);
+			if ($rs && $adb->num_rows($rs)>0) {
+				self::$validationinfo[] = 'Found NO category, NO client and product';
+				return self::getDiscountValue($rs->fields['discountlineid'], $context);
+			}
+			//// NO category, NO client and NO product
+			$query = $basequery.$basewhere
+				.'AND NOT EXISTS
+					(select 1 from vtiger_crmentityrel
+						where vtiger_crmentityrel.crmid=discountlineid OR vtiger_crmentityrel.relcrmid=discountlineid)';
+			$params = array('--None--');
+			$rs = $adb->pquery($query, $params);
+			if ($rs && $adb->num_rows($rs)>0) {
+				self::$validationinfo[] = 'Found NO category, NO client and NO product';
+				return self::getDiscountValue($rs->fields['discountlineid'], $context);
+			}
+			return false;
+		} else {
+			self::$validationinfo[] = 'Product NOT FOUND';
 			return false;
 		}
+	}
+
+	private static function getDiscountValue($dtolineid, $context) {
+		global $adb, $current_user;
+		$rs = $adb->pquery('SELECT distinct cbmapid,returnvalue,discount FROM vtiger_discountline WHERE discountlineid=?', array($dtolineid));
+		if ($rs && $adb->num_rows($rs) > 0) {
+			$productid = $context['recordid'];
+			$pdotype = getSalesEntityType($productid);
+			$qg = new QueryGenerator($pdotype, $current_user);
+			$qg->setFields(array('unit_price','cost_price'));
+			$qg->addCondition('id', $productid, 'e');
+			$query = $qg->getQuery();
+			$rsprice = $adb->query($query);
+			$rettype = $adb->query_result($rs, 0, 'returnvalue');
+			$mapid = $adb->query_result($rs, 0, 'cbmapid');
+			if (empty($mapid)) {
+				$value = $adb->query_result($rs, 0, 'discount');
+			} else {
+				$value = coreBOS_Rule::evaluate($mapid, $context);
+			}
+			if ($rettype == 'Cost+Margin') {
+				$return = array('unit price' => ((float)$adb->query_result($rsprice, 0, 'cost_price') * (1 + ($value/100))) , 'discount' => 0);
+			} else { // Unit+Discount
+				$return = array('unit price' => $adb->query_result($rsprice, 0, 'unit_price') , 'discount' => $value);
+			}
+			self::$validationinfo[] = sprintf('Record %s: (%s) Price: %s, Discount: %s, Value: %s', $dtolineid, $rettype, $return['unit price'], $return['discount'], $value);
+			return $return;
+		} else {
+			self::$validationinfo[] = 'Discount Record NOT FOUND';
+			return false;
+		}
+	}
+
+	public static function getValidationInfo() {
+		return self::$validationinfo;
 	}
 }
 ?>

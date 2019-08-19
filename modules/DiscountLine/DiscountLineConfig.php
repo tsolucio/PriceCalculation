@@ -20,21 +20,22 @@ $image_path=$theme_path.'images/';
 
 $smarty = new vtigerCRM_Smarty();
 $smarty->assign('MOD', return_module_language($current_language, 'Settings'));
+$smarty->assign('THEME', $theme);
 $smarty->assign('IMAGE_PATH', $image_path);
 $smarty->assign('APP', $app_strings);
 $smarty->assign('CMOD', $mod_strings);
-$smarty->assign('MODULE_LBL', $currentModule);
+$smarty->assign('MODULE_LBL', getTranslatedString($currentModule, $currentModule));
 // Operation to be restricted for non-admin users.
 if (!is_admin($current_user)) {
 	$smarty->display(vtlib_getModuleTemplate('Vtiger', 'OperationNotPermitted.tpl'));
 } else {
-	$mode = $_POST['mode'];
+	$mode = isset($_POST['mode']) ? vtlib_purify($_POST['mode']) : '';
 	# Save Action
 	if (!empty($mode) && $mode == 'Save') {
 		if ($_POST['module_status'] == null) {
 			$module_status ='off';
 		} else {
-			$module_status = $_POST['module_status'];
+			$module_status = vtlib_purify($_POST['module_status']);
 		}
 		coreBOS_Settings::delSetting('KEY_DISCOUNT_MODULE_STATUS');
 		coreBOS_Settings::setSetting('KEY_DISCOUNT_MODULE_STATUS', $module_status);
@@ -43,7 +44,7 @@ if (!is_admin($current_user)) {
 	?>
 	<div style="margin:2em;">
 	<?php $smarty->display('SetMenu.tpl'); ?>
-	<legend class="slds-form-element__legend slds-form-element__label"><?php echo getTranslatedString('MODULE_CONFIGURATION', $MODULE);?></legend>
+	<legend class="slds-form-element__legend slds-form-element__label"><?php echo getTranslatedString('MODULE_CONFIGURATION', $currentModule);?></legend>
 	<form name="myform" role='form' action="index.php" method="POST">
 		<input type="hidden" name="module" value="DiscountLine">
 		<input type="hidden" name="action" value="DiscountLineConfig">
@@ -52,7 +53,7 @@ if (!is_admin($current_user)) {
 		<input type="hidden" name="mode" value="Save">
 		<div class="slds-form-element slds-m-top--small">
 			<label class="slds-checkbox--toggle slds-grid">
-			<span class="slds-form-element__label slds-m-bottom--none"><?php echo getTranslatedString('LBL_CHANGE_MODULE_STATUS', $MODULE);?></span>
+			<span class="slds-form-element__label slds-m-bottom--none"><?php echo getTranslatedString('LBL_CHANGE_MODULE_STATUS', $currentModule);?></span>
 			<input type="checkbox" name="module_status" aria-describedby="toggle-module-status" <?php echo ($module_status=='on' ? 'checked' : '');?>/>
 			<span id="toggle-module-status" class="slds-checkbox--faux_container" aria-live="assertive">
 				<span class="slds-checkbox--faux"></span>
@@ -62,9 +63,9 @@ if (!is_admin($current_user)) {
 			</label>
 		</div>
 		<div class="slds-m-top--large">
-			<button type="submit" value="Save" class="slds-button slds-button--brand"><?php echo getTranslatedString('LBL_SAVE_BUTTON_LABEL', $MODULE);?></button>
+			<button type="submit" value="Save" class="slds-button slds-button--brand"><?php echo getTranslatedString('LBL_SAVE_BUTTON_LABEL', $currentModule);?></button>
 		</div>
 	</form>
-	<?php
+<?php
 }
 ?>

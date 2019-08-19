@@ -30,6 +30,15 @@ class updateDtoLine extends cbupdaterWorker {
 				$ev = new VTEventsManager($adb);
 				$ev->registerHandler('corebos.entity.link.after', 'modules/DiscountLine/CheckDuplicateRelatedRecords.php', 'CheckDuplicateRelatedRecords');
 				$ev->registerHandler('corebos.filter.inventory.getprice', 'modules/DiscountLine/GetPriceHandler.php', 'PriceCalculationGetPriceEventHandler');
+				$modAccounts = Vtiger_Module::getInstance('Accounts');
+				$modAccounts->unsetRelatedList(Vtiger_Module::getInstance('Discountline'), 'Price Modification', 'get_dependents_list');
+				$modAccounts->setRelatedList(Vtiger_Module::getInstance('Discountline'), 'Price Modification', array('ADD','SELECT'));
+				$modServices = Vtiger_Module::getInstance('Services');
+				$modServices->setRelatedList(Vtiger_Module::getInstance('Discountline'), 'Price Modification', array('ADD','SELECT'));
+				$modProducts = Vtiger_Module::getInstance('Products');
+				$modProducts->setRelatedList(Vtiger_Module::getInstance('Discountline'), 'Price Modification', array('ADD','SELECT'));
+				$modContacts = Vtiger_Module::getInstance('Contacts');
+				$modContacts->setRelatedList(Vtiger_Module::getInstance('Discountline'), 'Price Modification', array('ADD','SELECT'));
 				// Gets all the uitype10 accountid and adds them to crmentityrel
 				$query_result = $adb->pquery('SELECT discountlineid, accountid FROM vtiger_discountline', array());
 				while ($_rows = $adb->fetch_array($query_result)) {
@@ -40,6 +49,36 @@ class updateDtoLine extends cbupdaterWorker {
 						array($crmid_discountline, 'DiscountLine', $crmid_accounts, 'Accounts')
 					);
 				}
+				$fieldLayout=array(
+					'Discountline' => array(
+						'LBL_DISCOUNTLINE_INFORMATION'=> array(
+							'activestatus' => array(
+								'columntype'=>'varchar(3)',
+								'typeofdata'=>'C~O',
+								'uitype'=>'56',
+								'displaytype'=>'1',
+								'label'=>'Active',
+							),
+							'returnvalue' => array(
+								'columntype'=>'varchar(30)',
+								'typeofdata'=>'V~O',
+								'uitype'=>'15',
+								'displaytype'=>'1',
+								'label'=>'Return Value',
+								'vals' => array('Unit+Discount', 'Cost+Margin'),
+							),
+							'cbmapid' => array(
+								'columntype'=>'int(11)',
+								'typeofdata'=>'V~O',
+								'uitype'=>'10',
+								'displaytype'=>'1',
+								'label'=>'Map',
+								'mods' => array('cbMap'),
+							),
+						),
+					),
+				);
+				$this->massCreateFields($fieldLayout);
 			}
 			$this->sendMsg('Changeset '.get_class($this).' applied!');
 			$this->markApplied();

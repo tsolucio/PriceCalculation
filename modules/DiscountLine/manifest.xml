@@ -38,7 +38,6 @@
   `dlcategory` varchar(255) DEFAULT NULL,
   `discount` int(11) DEFAULT NULL,
   `activestatus` varchar(3) DEFAULT 0,
-  `defaultstatus` varchar(3) DEFAULT 0,
   `returnvalue` varchar(50), 
   `cbmapid` int(11),
   PRIMARY KEY (`discountlineid`)
@@ -194,26 +193,6 @@
 <masseditable>1</masseditable>
 </field>
 <field>
-<fieldname>defaultstatus</fieldname>
-<uitype>56</uitype>
-<columnname>defaultstatus</columnname>
-<tablename>vtiger_discountline</tablename>
-<generatedtype>1</generatedtype>
-<fieldlabel>Default</fieldlabel>
-<readonly>1</readonly>
-<presence>2</presence>
-<defaultvalue></defaultvalue>
-<sequence>7</sequence>
-<maximumlength>100</maximumlength>
-<typeofdata>C~O</typeofdata>
-<quickcreate>1</quickcreate>
-<quickcreatesequence></quickcreatesequence>
-<displaytype>1</displaytype>
-<info_type>BAS</info_type>
-<helpinfo><![CDATA[]]></helpinfo>
-<masseditable>1</masseditable>
-</field>
-<field>
 <fieldname>createdtime</fieldname>
 <uitype>70</uitype>
 <columnname>createdtime</columnname>
@@ -223,7 +202,7 @@
 <readonly>1</readonly>
 <presence>0</presence>
 <defaultvalue></defaultvalue>
-<sequence>6</sequence>
+<sequence>7</sequence>
 <maximumlength>100</maximumlength>
 <typeofdata>DT~O</typeofdata>
 <quickcreate>1</quickcreate>
@@ -243,7 +222,7 @@
 <readonly>1</readonly>
 <presence>0</presence>
 <defaultvalue></defaultvalue>
-<sequence>6</sequence>
+<sequence>8</sequence>
 <maximumlength>100</maximumlength>
 <typeofdata>DT~O</typeofdata>
 <quickcreate>1</quickcreate>
@@ -263,7 +242,7 @@
 <readonly>1</readonly>
 <presence>0</presence>
 <defaultvalue></defaultvalue>
-<sequence>7</sequence>
+<sequence>9</sequence>
 <maximumlength>100</maximumlength>
 <typeofdata>V~M</typeofdata>
 <quickcreate>1</quickcreate>
@@ -314,10 +293,10 @@
 <fieldname>discountline_no</fieldname>
 <columnindex>0</columnindex>
 </field>
-<!-- <field>
-<fieldname>accountid</fieldname>
+<field>
+<fieldname>returnvalue</fieldname>
 <columnindex>1</columnindex>
-</field>-->
+</field>
 <field>
 <fieldname>productcategory</fieldname>
 <columnindex>2</columnindex>
@@ -325,6 +304,14 @@
 <field>
 <fieldname>discount</fieldname>
 <columnindex>3</columnindex>
+</field>
+<field>
+<fieldname>activestatus</fieldname>
+<columnindex>4</columnindex>
+</field>
+<field>
+<fieldname>defaultstatus</fieldname>
+<columnindex>5</columnindex>
 </field>
 </fields>
 </customview>
