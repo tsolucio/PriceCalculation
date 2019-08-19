@@ -20,30 +20,17 @@ class CheckDuplicateRelatedRecords extends VTEventHandler {
 	 * @param $entityData VTEntityData
 	 */
 	public function handleEvent($handlerType, $entityData) {
-		global $adb, $log;
-		switch ($handlerType) {
-			case 'corebos.entity.link.after':
-				if (in_array($entityData['sourceModule'], array('Contacts', 'Products', 'Services', 'Accounts')) && $entityData['destinationModule'] == 'DiscountLine') {
-					$checkResult = $adb->pquery(
-						'SELECT * FROM vtiger_crmentityrel INNER JOIN ( SELECT vtiger_crmentityrel.relcrmid FROM vtiger_crmentityrel WHERE crmid = ? OR crmid = ? ) temp ON vtiger_crmentityrel.relcrmid = temp.relcrmid AND( relmodule = ? OR relmodule = ? ) WHERE ( vtiger_crmentityrel.relmodule = ? OR vtiger_crmentityrel.relmodule = ? ) AND crmid IN( SELECT crmid FROM vtiger_crmentityrel WHERE (crmid = ? OR crmid = ?) AND( module = ? OR module = ? ) AND( relcrmid = ? OR relcrmid = ? ) AND( relmodule = ? OR relmodule = ? ) )',
-						array(
-							$entityData['sourceRecordId'], $entityData['destinationRecordId'], $entityData['destinationModule'], $entityData['sourceModule'], $entityData['destinationModule'], $entityData['sourceModule'], $entityData['sourceRecordId'], $entityData['destinationRecordId'], 
-							$entityData['sourceModule'], $entityData['destinationModule'], $entityData['destinationRecordId'], $entityData['sourceRecordId'], 
-							$entityData['destinationModule'], $entityData['sourceModule']
-						)
-					);
-
-					if ($adb->num_rows($checkResult) != 1) {
-						$sql = "DELETE FROM vtiger_crmentityrel WHERE crmid = ? AND module = ? AND relcrmid = ? AND relmodule = ? LIMIT 1";
-						$adb->pquery($sql, array($entityData['sourceRecordId'],$entityData['sourceModule'], $entityData['destinationRecordId'], $entityData['destinationModule']));
-					} elseif ($adb->num_rows($checkResult) == 0) {
-						$sql = 'INSERT INTO vtiger_crmentityrel VALUES(?,?,?,?)';
-						$adb->pquery($sql, array($entityData['sourceRecordId'],$entityData['sourceModule'], $entityData['destinationRecordId'], $entityData['destinationModule']));
-					}
-				}
-			break;
+		global $adb;
+		if ($handlerType='corebos.entity.link.after'
+			&& $entityData['destinationModule'] == 'DiscountLine'
+			&& in_array($entityData['sourceModule'], array('Contacts', 'Products', 'Services', 'Accounts'))
+		) {
+			$adb->pquery('delete from vtiger_crmentityrel where crmid=? and relcrmid=?', array($entityData['sourceRecordId'], $entityData['destinationRecordId']));
+			$dtoobj = CRMEntity::getInstance('DiscountLine');
+			$dtoobj->save_related_module('DiscountLine', $entityData['destinationRecordId'], $entityData['sourceModule'], $entityData['sourceRecordId']);
 		}
 	}
 
-	public function handleFilter($handlerType, $parameter) {}
+	public function handleFilter($handlerType, $parameter) {
+	}
 }
