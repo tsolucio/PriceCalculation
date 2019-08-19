@@ -21,7 +21,7 @@ class PriceCalculationGetPriceEventHandler extends VTEventHandler {
 
 	public function handleFilter($handlerType, $parameter) {
 		if ($handlerType == 'corebos.filter.inventory.getprice') {
-			if (coreBOS_Settings::getSetting('KEY_DISCOUNT_MODULE_STATUS', '')) {
+			if (coreBOS_Settings::getSetting('KEY_DISCOUNT_MODULE_STATUS', 'off')!='off') {
 				include_once 'modules/DiscountLine/DiscountLine.php';
 				$prices = DiscountLine::getDiscount($parameter[2]['productid'], $parameter[2]['accountid'], $parameter[2]['contactid'], $parameter[2]['moduleid']);
 				if (is_array($prices)) {
