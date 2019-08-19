@@ -309,10 +309,6 @@
 <fieldname>activestatus</fieldname>
 <columnindex>4</columnindex>
 </field>
-<field>
-<fieldname>defaultstatus</fieldname>
-<columnindex>5</columnindex>
-</field>
 </fields>
 </customview>
 </customviews>
