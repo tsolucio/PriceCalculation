@@ -49,16 +49,18 @@ class DiscountLine extends CRMEntity {
 		/* Format: Field Label => array(tablename => columnname) */
 		// tablename should not have prefix 'vtiger_'
 		'discountline_no'=> array('discountline' => 'discountline_no'),
+		'Return Value' => array('discountline' => 'returnvalue'),
 		'Line'=> array('discountline' => 'productcategory'),
 		'Discount'=> array('discountline' => 'discount'),
-		'Assigned To' => array('crmentity' => 'smownerid')
+		'Active'=> array('discountline' => 'activestatus'),
 	);
 	public $list_fields_name = array(
 		/* Format: Field Label => fieldname */
 		'discountline_no'=> 'discountline_no',
+		'Return Value' => 'returnvalue',
 		'Line'=> 'productcategory',
 		'Discount'=>'discount',
-		'Assigned To' => 'assigned_user_id'
+		'Active'=> 'activestatus',
 	);
 
 	// Make the field link to detail view from list view (Fieldname)
@@ -68,11 +70,19 @@ class DiscountLine extends CRMEntity {
 	public $search_fields = array(
 		/* Format: Field Label => array(tablename => columnname) */
 		// tablename should not have prefix 'vtiger_'
-		'discountline_no'=> array('discountline' => 'discountline_no')
+		'discountline_no'=> array('discountline' => 'discountline_no'),
+		'Return Value' => array('discountline' => 'returnvalue'),
+		'Line'=> array('discountline' => 'productcategory'),
+		'Discount'=> array('discountline' => 'discount'),
+		'Active'=> array('discountline' => 'activestatus'),
 	);
 	public $search_fields_name = array(
 		/* Format: Field Label => fieldname */
-		'discountline_no'=> 'discountline_no'
+		'discountline_no'=> 'discountline_no',
+		'Return Value' => 'returnvalue',
+		'Line'=> 'productcategory',
+		'Discount'=>'discount',
+		'Active'=> 'activestatus',
 	);
 
 	// For Popup window record selection
