@@ -44,14 +44,17 @@ class updateDtoLine extends cbupdaterWorker {
 				$modServices->setRelatedList($module, 'Price Modification', array('ADD','SELECT'));
 				$module->setRelatedList($modServices, 'Price Modification', array('ADD','SELECT'));
 				// Gets all the uitype10 accountid and adds them to crmentityrel
-				$query_result = $adb->pquery('SELECT discountlineid, accountid FROM vtiger_discountline', array());
-				while ($_rows = $adb->fetch_array($query_result)) {
-					$crmid_discountline = $_rows['discountlineid'];
-					$crmid_accounts = $_rows['accountid'];
-					$this->ExecuteQuery(
-						'INSERT INTO `vtiger_crmentityrel` (`crmid`, `module`, `relcrmid`, `relmodule`) VALUES (?,?,?,?)',
-						array($crmid_discountline, 'DiscountLine', $crmid_accounts, 'Accounts')
-					);
+				$cnmsg = $adb->getColumnNames('vtiger_discountline');
+				if (in_array('accountid', $cnmsg)) {
+					$query_result = $adb->pquery('SELECT discountlineid, accountid FROM vtiger_discountline', array());
+					while ($_rows = $adb->fetch_array($query_result)) {
+						$crmid_discountline = $_rows['discountlineid'];
+						$crmid_accounts = $_rows['accountid'];
+						$this->ExecuteQuery(
+							'INSERT INTO `vtiger_crmentityrel` (`crmid`, `module`, `relcrmid`, `relmodule`) VALUES (?,?,?,?)',
+							array($crmid_discountline, 'DiscountLine', $crmid_accounts, 'Accounts')
+						);
+					}
 				}
 				$fieldLayout=array(
 					'Discountline' => array(
