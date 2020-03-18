@@ -9,14 +9,30 @@
  ************************************************************************************/
 
 $mod_strings = array(
-	'ModuleName' => 'Module Name',
-	'SINGLE_ModuleName' => 'Module Name',
-	'ModuleName ID' => 'Module Name ID',
+	'DiscountLine' => 'Kortingsregels',
+	'SINGLE_DiscountLine' => 'Kortingsregel',
+	'DiscountLine ID' => 'Kortingsregels ID',
 
-	'LBL_CUSTOM_INFORMATION' => 'Custom Information',
-	'LBL_MODULEBLOCK_INFORMATION' => 'ModuleBlock Information',
-	'LBL_DESCRIPTION_INFORMATION' => 'Verkoopkans omschrijving',
+	'LBL_CUSTOM_INFORMATION' => 'Eigen informatie',
+	'LBL_DISCOUNTLINE_INFORMATION' => 'Kortingsregel informatie',
+	'LBL_DESCRIPTION_INFORMATION' => 'Beschrijving',
 
-	'ModuleFieldLabel' => 'ModuleFieldLabel Text',
+	'discountline_no' => 'Kortingsregel Nr',
+	'Line' => 'Regel',
+	'Discount' => 'Korting',
+	'Description' => 'Beschrijving',
+	'Map' => 'Relatie',
+	'Return Value' => 'Waarde om te gebruiken',
+	'Active' => 'Actief',
+	'Default' => 'Standaard',
+	'RELATE_PERMISSION' => 'Deze relatie kan niet gebruikt worden omdat hij duplicaten zou veroorzaken',
+
+	'STATUS_CONFIGURATION_DESCRIPTION' => 'Activeer/deactiveer Module',
+	'STATUS_CONFIGURATION' => 'Module Status',
+	'LBL_CHANGE_MODULE_STATUS' => 'Verander Module Status',
+	'LBL_ACTIVATE_MODULE' => 'Module Geactiveerd',
+	'LBL_DEACTIVATE_MODULE' => 'Module Gedeactiveerd',
+	'LBL_SAVE_BUTTON_LABEL' => 'Bewaar',
+	'MODULE_CONFIGURATION' => 'Module instellingen',
 );
 ?>
