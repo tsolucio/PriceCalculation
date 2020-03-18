@@ -34,5 +34,7 @@ $mod_strings = array(
 	'LBL_DEACTIVATE_MODULE' => 'Module Gedeactiveerd',
 	'LBL_SAVE_BUTTON_LABEL' => 'Bewaar',
 	'MODULE_CONFIGURATION' => 'Module instellingen',
+	'Unit+Discount' => 'Verkoopprijs - korting',
+	'Cost+Margin' => 'Kostprijs + marge',
 );
 ?>
