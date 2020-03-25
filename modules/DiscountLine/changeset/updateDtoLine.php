@@ -57,7 +57,7 @@ class updateDtoLine extends cbupdaterWorker {
 					}
 				}
 				$fieldLayout=array(
-					'Discountline' => array(
+					'DiscountLine' => array(
 						'LBL_DISCOUNTLINE_INFORMATION'=> array(
 							'activestatus' => array(
 								'columntype'=>'varchar(3)',
@@ -87,7 +87,7 @@ class updateDtoLine extends cbupdaterWorker {
 				);
 				$this->massCreateFields($fieldLayout);
 				$fieldLayout=array(
-					'Discountline' => array(
+					'DiscountLine' => array(
 						'accountid'
 					),
 				);
