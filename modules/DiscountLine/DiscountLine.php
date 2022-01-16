@@ -324,8 +324,8 @@ class DiscountLine extends CRMEntity {
 					AND NOT EXISTS
 						(select 1 from vtiger_crmentityrel
 							where (vtiger_crmentityrel.crmid=discountlineid OR vtiger_crmentityrel.relcrmid=discountlineid)
-								AND (vtiger_crmentityrel.crmid=? OR vtiger_crmentityrel.relcrmid=?))';
-			$params = array('--None--', $search_in, $search_in, $productid, $productid);
+								AND (vtiger_crmentityrel.module=? OR vtiger_crmentityrel.relmodule=? OR vtiger_crmentityrel.module=? OR vtiger_crmentityrel.relmodule=?))';
+			$params = array('--None--', $search_in, $search_in, 'Products', 'Products', 'Services', 'Services');
 			$rs = $adb->pquery($query, $params);
 			if ($rs && $adb->num_rows($rs)>0) {
 				self::$validationinfo[] = 'Found NO category, client and NO product';
