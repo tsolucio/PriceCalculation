@@ -25,12 +25,13 @@ $smarty->assign('IMAGE_PATH', $image_path);
 $smarty->assign('APP', $app_strings);
 $smarty->assign('CMOD', $mod_strings);
 $smarty->assign('MODULE_LBL', getTranslatedString($currentModule, $currentModule));
+$smarty->assign('MODULE', $currentModule);
 // Operation to be restricted for non-admin users.
 if (!is_admin($current_user)) {
 	$smarty->display(vtlib_getModuleTemplate('Vtiger', 'OperationNotPermitted.tpl'));
 } else {
 	$mode = isset($_POST['mode']) ? vtlib_purify($_POST['mode']) : '';
-	# Save Action
+	// Save Action
 	if (!empty($mode) && $mode == 'Save') {
 		if (empty($_POST['module_status'])) {
 			$module_status ='off';
@@ -44,6 +45,7 @@ if (!is_admin($current_user)) {
 	?>
 	<div style="margin:2em;">
 	<?php $smarty->display('SetMenu.tpl'); ?>
+	<div class="slds-card slds-p-around_small slds-m-around_medium">
 	<legend class="slds-form-element__legend slds-form-element__label"><?php echo getTranslatedString('MODULE_CONFIGURATION', $currentModule);?></legend>
 	<form name="myform" role='form' action="index.php" method="POST">
 		<input type="hidden" name="module" value="DiscountLine">
@@ -66,6 +68,7 @@ if (!is_admin($current_user)) {
 			<button type="submit" value="Save" class="slds-button slds-button--brand"><?php echo getTranslatedString('LBL_SAVE_BUTTON_LABEL', $currentModule);?></button>
 		</div>
 	</form>
+	</div>
 	<?php
 }
 ?>

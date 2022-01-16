@@ -253,7 +253,7 @@ class DiscountLine extends CRMEntity {
 			$search_in = $contactid;
 		}
 		$pdotype = getSalesEntityType($productid);
-		self::$validationinfo[] = "search for discount $productid ($pdotype), $search_in ($searchModule), $moduleid";
+		self::$validationinfo[] = "search for discount $productid ($pdotype), $search_in ($searchModule), $moduleid (module ID)";
 		$qg = new QueryGenerator($pdotype, $current_user);
 		if ($pdotype=='Products') {
 			$qg->setFields(array('productcategory'));

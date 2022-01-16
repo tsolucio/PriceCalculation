@@ -41,10 +41,11 @@ if (isset($_REQUEST['pdo'])) {
 	font-size: medium;
 }
 </style>
+<div class="slds-card slds-p-around_small slds-m-around_medium">
 <form action="index.php">
 <input name="action" type="hidden" value="TestPrice">
 <input name="module" type="hidden" value="DiscountLine">
-<table width="98%" align="center" border="0" cellspacing="0" cellpadding="0" class="small">
+<table style="width:98%;border:0;" class="small">
 <tbody><tr><td style="height:2px"></td></tr>
 <tr>
 	<td>
@@ -63,7 +64,7 @@ if (isset($_REQUEST['pdo'])) {
 </tr>
 <tr><td style="height:2px"></td></tr>
 </tbody></table>
-<table width="560px" border="0" cellspacing="0" cellpadding="0">
+<table style="width:560px;border:0;">
 <tr>
 	<td class='gvtestlabeltext'><?php echo getTranslatedString('Products', 'Products');?></td>
 	<td><input name="pdo" id="pdo" style='width: 250px;' value="<?php echo $pdoid; ?>"></td>
@@ -78,7 +79,7 @@ if (isset($_REQUEST['pdo'])) {
 </tr>
 <tr><td style="height:6px"></td></tr>
 <tr>
-	<td colspan="2" align="center"><button onclick="javascript:gvSearchVariableValue();"><?php echo getTranslatedString('Search Value', 'GlobalVariable');?></button></td>
+	<td colspan="2"><button onclick="javascript:gvSearchVariableValue();"><?php echo getTranslatedString('Search Value', 'GlobalVariable');?></button></td>
 </tr>
 <tr><td style="height:6px"></td></tr>
 </table>
@@ -96,4 +97,5 @@ if ($prices===false) {
 	echo '<b>Discount: '.$prices['discount'].'</b>';
 }
 ?>
+</div>
 </div>
