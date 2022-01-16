@@ -198,7 +198,7 @@ class DiscountLine extends CRMEntity {
 					$dlw[] = ($rels['module']=='DiscountLine' ? $rels['crmid'] : $rels['relcrmid']);
 				}
 				// if DLW is empty => we can relate
-				if (count($dlw)==0) {
+				if (empty($dlw)) {
 					$adb->pquery('INSERT INTO vtiger_crmentityrel VALUES(?,?,?,?)', array($crmid, $module, $with_crmid, $with_module));
 					continue;
 				}
@@ -225,7 +225,7 @@ class DiscountLine extends CRMEntity {
 				$dlp = array_unique($dlp);
 				// if DLWP intersect with DLP is empty => we can relate
 				$intersect = array_intersect($dlwp, $dlp);
-				if (count($intersect)==0) {
+				if (empty($intersect)) {
 					$adb->pquery('INSERT INTO vtiger_crmentityrel VALUES(?,?,?,?)', array($crmid, $module, $with_crmid, $with_module));
 					continue;
 				}
@@ -277,7 +277,7 @@ class DiscountLine extends CRMEntity {
 			$basequery = 'SELECT distinct discountlineid
 				FROM vtiger_discountline
 				INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = discountlineid ';
-			$basewhere = ' WHERE deleted=0 AND activestatus=1 AND vtiger_discountline.dlcategory=?';
+			$basewhere = ' WHERE deleted=0 AND activestatus=1 AND vtiger_discountline.dlcategory=? ';
 			//// category and client
 			$query = $basequery
 				.'INNER JOIN vtiger_crmentityrel ON (vtiger_crmentityrel.crmid=discountlineid OR vtiger_crmentityrel.relcrmid=discountlineid) '
