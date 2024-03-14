@@ -199,7 +199,7 @@ class DiscountLine extends CRMEntity {
 				}
 				// if DLW is empty => we can relate
 				if (empty($dlw)) {
-					$adb->pquery('INSERT INTO vtiger_crmentityrel VALUES(?,?,?,?)', array($crmid, $module, $with_crmid, $with_module));
+					insertIntoCrmEntityRel($crmid, $module, $with_crmid, $with_module);
 					continue;
 				}
 				$dlwprs = $adb->pquery(
@@ -214,8 +214,7 @@ class DiscountLine extends CRMEntity {
 				}
 				$dlwp = array_unique($dlwp);
 				$dlprs = $adb->pquery(
-					'SELECT * FROM vtiger_crmentityrel
-						WHERE (crmid=? AND (relmodule=? OR relmodule=?)) OR (relcrmid=? AND (module=? OR module=?))',
+					'SELECT * FROM vtiger_crmentityrel WHERE (crmid=? AND (relmodule=? OR relmodule=?)) OR (relcrmid=? AND (module=? OR module=?))',
 					array($crmid, $otherModules, $crmid, $otherModules)
 				);
 				$dlp = array();
@@ -226,14 +225,14 @@ class DiscountLine extends CRMEntity {
 				// if DLWP intersect with DLP is empty => we can relate
 				$intersect = array_intersect($dlwp, $dlp);
 				if (empty($intersect)) {
-					$adb->pquery('INSERT INTO vtiger_crmentityrel VALUES(?,?,?,?)', array($crmid, $module, $with_crmid, $with_module));
+					insertIntoCrmEntityRel($crmid, $module, $with_crmid, $with_module);
 					continue;
 				}
 				coreBOS_Settings::setSetting('RLERRORMESSAGE', getTranslatedString('RELATE_PERMISSION', 'DiscountLine'));
 				coreBOS_Settings::setSetting('RLERRORMESSAGECLASS', 'warning');
 			}
 		} else {
-			parent::save_related_module($module, $crmid, $with_module, $with_crmid);
+			parent::save_related_module($module, $crmid, $with_module, $with_crmids);
 		}
 	}
 
