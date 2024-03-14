@@ -1,0 +1,28 @@
+{
+	"name": "tsolucio/PriceCalculation",
+	"type": "corebos-module",
+	"properties": {
+		"name": "Price Calculation",
+		"description": "This business settings module will permit you to define discounts per product/service line and/or clients.",
+		"keywords": ["price","discount","product","service","account","contact"],
+		"homepage": "https://corebos.com/docs_grav/extensions-integrations/corebosmodules/dtoproductline/id:9e484a780791f0e41c5b7504c1e85653/store:corebosmodule",
+		"version": "1.2",
+		"time": "2015-11-30",
+		"license": "MIT",
+		"extra": {
+			"distribution": "Free"
+		},
+		"authors": [
+			{
+				"name": "JPL TSolucio, S.L.",
+				"email": "info(at)tsolucio(dot)com"
+			}
+		],
+		"support": {
+			"email": "info(at)tsolucio(dot)com",
+			"issues": "https://github.com/tsolucio/PriceCalculation",
+			"forum": "http://discussions.corebos.org/",
+			"source": "https://github.com/tsolucio/PriceCalculation"
+		}
+	}
+}
