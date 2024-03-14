@@ -27,7 +27,7 @@ if (!is_admin($current_user)) {
 
 	$menu_array = array();
 
-	$menu_array['LayoutEditor']['location'] = 'index.php?module=Settings&action=LayoutBlockList&parenttab=Settings&formodule='.$module;
+	$menu_array['LayoutEditor']['location'] = 'index.php?module=Settings&action=LayoutBlockList&formodule='.$module;
 	$menu_array['LayoutEditor']['image_src'] = 'themes/images/orgshar.gif';
 	$menu_array['LayoutEditor']['desc'] = getTranslatedString('LBL_LAYOUT_EDITOR_DESCRIPTION');
 	$menu_array['LayoutEditor']['label'] = getTranslatedString('LBL_LAYOUT_EDITOR');
@@ -51,7 +51,7 @@ if (!is_admin($current_user)) {
 		}
 	}
 
-	$menu_array['DCL_CHANGE_MODULE_STATUS']['location'] = 'index.php?module=DiscountLine&action=DiscountLineConfig&parenttab=Settings&formodule=DiscountLine';
+	$menu_array['DCL_CHANGE_MODULE_STATUS']['location'] = 'index.php?module=DiscountLine&action=DiscountLineConfig&formodule=DiscountLine';
 	$menu_array['DCL_CHANGE_MODULE_STATUS']['image_src'] = 'modules/DiscountLine/settings.png';
 	$menu_array['DCL_CHANGE_MODULE_STATUS']['desc'] = getTranslatedString('STATUS_CONFIGURATION_DESCRIPTION', $module);
 	$menu_array['DCL_CHANGE_MODULE_STATUS']['label'] = getTranslatedString('STATUS_CONFIGURATION', $module);

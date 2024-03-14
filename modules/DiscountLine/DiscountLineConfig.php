@@ -50,7 +50,6 @@ if (!is_admin($current_user)) {
 	<form name="myform" role='form' action="index.php" method="POST">
 		<input type="hidden" name="module" value="DiscountLine">
 		<input type="hidden" name="action" value="DiscountLineConfig">
-		<input type="hidden" name="parenttab" value="Settings">
 		<input type="hidden" name="formodule" value="DiscountLine">
 		<input type="hidden" name="mode" value="Save">
 		<div class="slds-form-element slds-m-top--small">
